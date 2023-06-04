@@ -14,7 +14,7 @@ public class Deque {
     private ArrayList<Integer> possibleCurrentStates = new ArrayList<Integer>();
     private ArrayList<Integer> possibleNextStates = new ArrayList<Integer>();
     private int[] visited; 
-
+    
 
     //initiliase with possible current state 0
     public Deque(int numStates){
@@ -45,28 +45,34 @@ public class Deque {
     }
 
 
-    /**
-     * Queues up the next possible state
-     */
+   /**
+    * Queues the next possible state
+    * @param n1 state index 1
+    * @param n2 state index 2
+    */
     public void queue(int n1, int n2){
 
-        //if not a branching state
-        if(n1 == n2){
-
-            if(visited[n1] == 0){
-
-                possibleNextStates.add(n1);
-                return;
-
-            }
-
-        }
-        //add both next possible states if they havent been visited 
+        //add both next possible states if they have not been visited 
         if(visited[n1] == 0){
             possibleNextStates.add(n1);
         }
         if(visited[n2] == 0){
             possibleNextStates.add(n2);
+        }
+
+    }
+
+    /**
+     * Queues the next possible state if it has not been visited 
+     * @param n1 state index
+     */
+    public void queue(int n1){
+
+        //check if it has been visited 
+        if(visited[n1] == 0){
+
+            possibleNextStates.add(n1);
+
         }
     }
 
