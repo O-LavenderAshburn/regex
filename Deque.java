@@ -1,5 +1,13 @@
 
 import java.util.*;
+
+/**
+ *Class to Queue possible next states and pop possible current states 
+ * 
+ * @version 1.0.0
+ * 
+ */
+
 public class Deque {
 
     //Deque stack and que
@@ -12,7 +20,7 @@ public class Deque {
     public Deque(int numStates){
 
         possibleCurrentStates.add(0);
-        
+
         //intitlize visited array 
         visited = new int[numStates];
         Arrays.fill(visited,0);
@@ -27,9 +35,7 @@ public class Deque {
 
         //check if the possible current states is empty
         if(possibleCurrentStates.size() == 0){
-
-
-
+            setPossibleCurrentStates();
         }
 
         int stateNum = possibleCurrentStates.get(0);
@@ -46,17 +52,36 @@ public class Deque {
 
         //if not a branching state
         if(n1 == n2){
-            possibleNextStates.add(n1);
-            return;
+
+            if(visited[n1] == 0){
+
+                possibleNextStates.add(n1);
+                return;
+
+            }
+
         }
-        //add both next possible states 
-        possibleNextStates.add(n1);
-        possibleNextStates.add(n2);
-
-
+        //add both next possible states if they havent been visited 
+        if(visited[n1] == 0){
+            possibleNextStates.add(n1);
+        }
+        if(visited[n2] == 0){
+            possibleNextStates.add(n2);
+        }
     }
-    
 
+    /**
+     * copy all possibe next states to possible current states and remove all old possible next states
+     */
+    private void setPossibleCurrentStates(){
+        
+        //copy possible next states to possible current states 
+        Collections.copy(possibleNextStates,possibleCurrentStates);
+
+        //clear possible next states
+        possibleNextStates.removeAll(possibleNextStates);
+        
+    }
 
 
 }
