@@ -1,4 +1,5 @@
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -22,11 +23,45 @@ public class ParseTest {
   }
   
   @Test
-  public void testValidSingleExpression() {
-    String expected = "";
+  public void testValidExpressions() {
+    String[] expressions = new String[] {
+      "",
+      "abc",
+      ".",
+      "a*",
+      "a+",
+      "a?",
+      "a|b",
+      "(a)",
+      "!a",
+      "a.b",
+      "abcsdfasdfiuashdfj",
+      "(a*|b+d.\\+)*d",
+      "a*|b",
+      "a|b*cd",
+      "r|!(a?)+\\.(b|(t*)d)"
+    };
 
-    REcompile.main(new String[] {"a|b"});
+    for (String expression : expressions) {
+      assertDoesNotThrow(() -> REcompile.main(new String[] { expression }));
+    }
+  }
 
-    assertEquals(expected, outContent.toString().trim());
+  @Test
+  public void testInvalidExpressions() {
+    String[] expressions = new String[] {
+      "|b",
+      "(ab(d)",
+      ")(a)(",
+      ".\\a",
+      "*dbs",
+      "+bd."
+    };
+
+    for (String expression : expressions) {
+      assertThrows(Exception.class, () -> {
+        REcompile.main(new String[] { expression });
+      });
+    }
   }
 }
