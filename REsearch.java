@@ -28,6 +28,7 @@ public class REsearch{
         String filename = args[0];
 
         try{
+
             //read in states 
             InputStreamReader isr = new InputStreamReader(System.in);
             BufferedReader reader = new BufferedReader(isr);
@@ -38,11 +39,12 @@ public class REsearch{
             // while we have states to read in 
             while(stateInput != null){
 
+                //split the state information
                 String[] stateInfo = stateInput.split(",");
                 char symbol = stateInfo[0].charAt(0);
                 int n1 =Integer.parseInt(stateInfo[1]);
                 int n2 =Integer.parseInt(stateInfo[2]);
-
+                
                 //create state and add to list of states
                 State newState = new State(symbol, n1 , n2);
                 states.add(newState);
@@ -106,13 +108,14 @@ public class REsearch{
         char[] chars = string.toCharArray();
 
         while(true){
-        //set the current pointer 
-        char current = chars[point];
 
-        //<IMPLEMENT SEARCH LOGIC HERE>
-
-            break;
-        }
+            //set the current pointer 
+            char current = chars[point];
+            
+            //<IMPLEMENT SEARCH LOGIC HERE>
+                
+                break;
+            }
 
 
 

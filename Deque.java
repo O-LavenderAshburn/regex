@@ -88,6 +88,11 @@ public class Deque {
         possibleNextStates.removeAll(possibleNextStates);
         
     }
+    
+    public void resetVisited(){
+        
+        Arrays.fill(visited,0);
+    }
 
 
 }
