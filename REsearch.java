@@ -8,6 +8,7 @@ public class REsearch{
     // Deque to keep track of possible current and next states
     private static Deque deque;
     private static ArrayList<State> states = new ArrayList<State>();
+    
 
     public static void main(String[] args){
 
@@ -44,7 +45,7 @@ public class REsearch{
                 char symbol = stateInfo[0].charAt(0);
                 int n1 =Integer.parseInt(stateInfo[1]);
                 int n2 =Integer.parseInt(stateInfo[2]);
-                
+
                 //create state and add to list of states
                 State newState = new State(symbol, n1 , n2);
                 states.add(newState);
@@ -103,20 +104,30 @@ public class REsearch{
 
 
     public static Boolean search(String string){
-        //looking at
-        int point = 0;
+
+        //create new deque
+        deque = new Deque(states.size());
+
+        //set pointer 
+        int pointer =0;
+        int currentStatePos =0;
+        State currenState;
+        currenState = states.get(currentStatePos);
+
+        char symbol = currenState.getType();
         char[] chars = string.toCharArray();
+
+
 
         while(true){
 
             //set the current pointer 
-            char current = chars[point];
-            
+            char current = chars[pointer];
             //<IMPLEMENT SEARCH LOGIC HERE>
-                
-                break;
-            }
+            
+            break;
 
+        }
 
 
         return false;

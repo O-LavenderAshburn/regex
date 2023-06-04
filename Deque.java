@@ -51,15 +51,8 @@ public class Deque {
     * @param n2 state index 2
     */
     public void queue(int n1, int n2){
-
-        //add both next possible states if they have not been visited 
-        if(visited[n1] == 0){
-            possibleNextStates.add(n1);
-        }
-        if(visited[n2] == 0){
-            possibleNextStates.add(n2);
-        }
-
+        queue(n1);
+        queue(n2);
     }
 
     /**
@@ -72,7 +65,21 @@ public class Deque {
         if(visited[n1] == 0){
 
             possibleNextStates.add(n1);
+            visited[n1] =1;
+        }
+    }
 
+    public void push(int n1, int n2){
+        push(n1);
+        push(n2);
+
+    }
+
+    public void push(int n1){
+        if(visited[n1]== 0){
+
+            possibleCurrentStates.add(0, n1);
+            visited[n1]=1;
         }
     }
 
@@ -90,7 +97,7 @@ public class Deque {
     }
     
     public void resetVisited(){
-        
+
         Arrays.fill(visited,0);
     }
 
