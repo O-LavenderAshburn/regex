@@ -28,6 +28,7 @@ public class REsearch{
         String filename = args[0];
 
         try{
+            //read in states 
             InputStreamReader isr = new InputStreamReader(System.in);
             BufferedReader reader = new BufferedReader(isr);
     
