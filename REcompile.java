@@ -1,10 +1,21 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Accepts a regex pattern from the command line
+ * and compiles it into a finite state machine, 
+ * a description of which is then outputted to standard
+ * output if the pattern was valid.
+ * 
+ * Created By Luke Finlayson, 1557835
+ */
 public class REcompile {
+  // A list of regex operators - and thus illegal characters otherwise
+  private static final String OPERATORS = ".*+?|()\\[]!\0";
+  
+  // The pattern and pointer to current character in pattern
   private static char[] p;
   private static int i;
-
-  private static final String OPERATORS = ".*+?|()\\[]!\0";
 
   public static void main(String[] args) throws Exception {
     // Ensure the pattern was passed as an argument
@@ -23,15 +34,23 @@ public class REcompile {
 
     System.out.println("Parsing expression: " + Arrays.toString(p));
 
+    // Initialise pointer
     i = 0;
 
     // Attempt to parse pattern as valid regex
     expression();
-    System.out.println("DONE");
   }
 
-  public static void expression() throws Exception {
+  /**
+   * Search for a valid regex expression
+   * 
+   * E → T
+   * E → TA
+   * E → TE
+   */
+  private static void expression() throws Exception {
     System.out.println("E -> T...");
+
     term();
 
     // Otherwise check for alternations
@@ -48,7 +67,12 @@ public class REcompile {
     }
   }
 
-  public static void alternation() throws Exception {
+  /**
+   * Search for a valid regex alternation
+   * 
+   * A → |E
+   */
+  private static void alternation() throws Exception {
     System.out.println("A -> |...");
 
     i++;
@@ -57,7 +81,15 @@ public class REcompile {
     System.out.println("A -> |E");
   }
 
-  public static void term() throws Exception {
+  /**
+   * Search for a valid regex term
+   * 
+   * T → F
+   * T → F*
+   * T → F+
+   * T → F?
+   */
+  private static void term() throws Exception {
     System.out.println("T -> F...");
 
     factor();
@@ -80,7 +112,17 @@ public class REcompile {
     }
   }
 
-  public static void factor() throws Exception {
+  /**
+   * Search for a valid regex factor
+   * 
+   * F → λ
+   * F → \Ω
+   * F → !F
+   * F → (E)
+   * F → [abc]
+   * F → .
+   */
+  private static void factor() throws Exception {
     // Check for valid literal matches
     if (!OPERATORS.contains("" + p[i])) {
       System.out.println("F -> λ: " + p[i]);
@@ -105,13 +147,14 @@ public class REcompile {
       System.out.println("F -> !E");
       i++;
 
-      expression();
+      factor();
     }
     // Check for raised precedence
     else if (p[i] == '(') {
       System.out.println("F -> (E");
       i++;
 
+      // Start is no longer 'next' but the start of the first state in the expression
       expression();
 
       System.out.println("F -> (E)");
