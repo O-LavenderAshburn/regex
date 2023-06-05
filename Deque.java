@@ -58,11 +58,9 @@ public class Deque {
     public void queue(int n1){
 
         //check if it has been visited 
-        if(visited[n1] == 0){
 
             possibleNextStates.add(n1);
-            visited[n1] =1;
-        }
+
     }
 
     /**
@@ -72,6 +70,7 @@ public class Deque {
      */
     public void push(int n1, int n2){
 
+        //push onto the stack
         push(n1);
         push(n2);
 
@@ -88,25 +87,31 @@ public class Deque {
 
             possibleCurrentStates.add(0, n1);
             visited[n1]=1;
+
         }
     }
 
     /**
      * copy all possibe next states to possible current states and remove all old possible next states
      */
-    public void setPossibleCurrentStates(){
+    public void deque(){
         
         //copy possible next states to possible current states 
-        Collections.copy(possibleNextStates,possibleCurrentStates);
-
+        possibleCurrentStates = possibleNextStates;
         //clear possible next states
-        possibleNextStates.removeAll(possibleNextStates);
+        possibleNextStates = new ArrayList<Integer>();
         
     }
     
     public void resetVisited(){
-
         Arrays.fill(visited,0);
+    }
+
+    public Boolean emptyStack(){
+        if (possibleCurrentStates.size() == 0){
+            return  true;
+        }
+        return false;
     }
 
 

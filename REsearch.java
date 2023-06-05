@@ -3,13 +3,13 @@ import java.util.ArrayList;
 import java.util.*;
 
 public class REsearch{
+    //symbo
     public static final char BRANCH = 'γ';
     public static final char WILDCARD = 'α';
 
     // Deque to keep track of possible current and next states
     private static Deque deque;
     private static ArrayList<State> states = new ArrayList<State>();
-    //α wildcard symbol
     
     
 
@@ -21,45 +21,45 @@ public class REsearch{
         String currentLine;
 
         //print usage and exit
-        if(args.length < 1){
+        // if(args.length < 1){
 
-            //error
-            System.out.println("Usage: ");
-            return;
-        }
+        //     //error
+        //     System.out.println("Usage: ");
+        //     return;
+        // }
 
         //File to search
-        String filename = args[0];
+        //String filename = args[0];
 
         try{
 
             //read in states 
-            InputStreamReader isr = new InputStreamReader(System.in);
-            BufferedReader reader = new BufferedReader(isr);
+            // InputStreamReader isr = new InputStreamReader(System.in);
+            FileReader fr1= new FileReader("./testFSMs/one.txt");
+
+            BufferedReader reader = new BufferedReader(fr1);
     
             //read in and create states
             String stateInput = reader.readLine();
 
             // while we have states to read in 
             while(stateInput != null){
-
                 //split the state information
-                String[] stateInfo = stateInput.split(",");
+                String[] stateInfo = stateInput.split(",");                
                 char[] symbol = stateInfo[0].toCharArray();
-                int n1 =Integer.parseInt(stateInfo[1]);
-                int n2 =Integer.parseInt(stateInfo[2]);
+                int n1 = Integer.parseInt(stateInfo[1]);
+                int n2 = Integer.parseInt(stateInfo[2]);
 
                 //create state and add to list of states
                 State newState = new State(symbol, n1 , n2);
                 states.add(newState);
 
                 stateInput = reader.readLine();
-
             }
             reader.close();
 
             //read the file 
-            FileReader fr = new FileReader(filename);
+            FileReader fr = new FileReader("./testFSMs/testText.txt");
             BufferedReader lineReader = new BufferedReader(fr); 
 
             //Read the first line
@@ -78,7 +78,7 @@ public class REsearch{
                     //seaerch the current line
                     succces = search(currentLine);
 
-                    if(succces){
+                    if(succces == true){
 
                         //exit out of while loop 
                         System.out.println(line);
@@ -106,70 +106,131 @@ public class REsearch{
     }
 
 
+
     public static Boolean search(String string){
 
         //create new deque
         deque = new Deque(states.size());
 
         //set pointer 
-        int pointerPos =0;
-        int currentStatePos =0;
-        State currenState;
-        currenState = states.get(currentStatePos);
-
-        char[] symbol = currenState.getType();
+        int pointer =0;
         char[] chars = string.toCharArray();
 
+        //get position 0
+        int currentStatePos =0;
+        State currenState;
+
+        //get the start state of the machine
+        currenState = states.get(currentStatePos);
 
 
         while(true){
 
+            //--If we have consumed all our input without getting to the final state--\\
+            if(pointer > chars.length){
+                break;
+            }
+
             //set the current pointer 
-            char pointer = chars[pointerPos];
-            //<IMPLEMENT SEARCH LOGIC HERE>
+            char currentChar = chars[pointer];
+
+            char[] symbol = currenState.getType();
+            
             while(true){
-                if(symbol[0] == 'γ'){
+
+                if(currenState.getType()[0]== 'γ'){
+
                     deque.push(currenState.next1(),currenState.next2());
+
+                    try{
+
+                        if(deque.emptyStack()){
+                            //deque next states onto the stack and reset visited 
+                            deque.deque();
+                            deque.resetVisited();
+
+                            //if empty stack after deque
+                            if(deque.emptyStack()){
+                                return false;
+                            }
+                            
+                            break;
+                        }
+
+                    currentStatePos = deque.pop();
+                    currenState = states.get(currentStatePos);
+
+                    } catch (Exception e){
+                        System.err.println(e);
+                    }
+
                 }   
+
                 else{
                     try{
 
                     //pop of the stack
-                    currentStatePos = deque.pop();
-                    currenState = states.get(currentStatePos);
-                    symbol = currenState.getType();
+                        if(deque.emptyStack()){
+                            //deque next states onto the stack and reset visited 
+                            deque.deque();
+                            deque.resetVisited();
+
+                            //if empty stack after deque
+                            if(deque.emptyStack()){
+                                return false;
+                            }
+                            
+                            break;
+                        }
+                            
+                        currentStatePos = deque.pop();
+                        currenState = states.get(currentStatePos);
 
                     } catch (Exception e) {
-                        deque.setPossibleCurrentStates();
+
                     }
 
                 }
+                if(!(currenState.getType()[0] == BRANCH)){
 
-                if(symbol[0] == WILDCARD|| symbol[0] != BRANCH || symbol.length !=2){
-                    checkMatching(currenState,pointer);
+                    checkMatching(currenState,currentChar);
+
                 }
+
+                //--If we get back to state 0--\\
+                if(currenState.next1() ==  0){
+                    return true;
+                }
+
+
             }
             
-            break;
+            pointer++;
 
         }
-
 
         return false;
     }
 
-    public static void checkMatching(State state, char pointer){
+
+    /**
+     * Check if we are matching a character
+     * @param state the current state
+     * @param pointer the character we are currently pointing at
+     */
+    public static void checkMatching(State state, char current){
         char[] symbol =  state.getType();
+
         if(symbol[0] == WILDCARD){
             deque.queue(state.next1(),state.next2());
         }
-        else if(symbol.length == 2){
-            if(symbol[1] != pointer){
-                deque.queue(state.next1(),state.next2());
-            }
-        }
+        // else if(symbol.length == 2){
+        //     if(symbol[1] != pointer){
+        //         deque.queue(state.next1(),state.next2());
+        //     }
+        // }
         else{
-            if(symbol[0] == pointer){
+            if(symbol[0] == current){
                 deque.queue(state.next1(),state.next2());
             }
         }
