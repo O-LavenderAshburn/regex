@@ -2,12 +2,15 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.*;
 
-
 public class REsearch{
+    public static final char BRANCH = 'γ';
+    public static final char WILDCARD = 'α';
 
     // Deque to keep track of possible current and next states
     private static Deque deque;
     private static ArrayList<State> states = new ArrayList<State>();
+    //α wildcard symbol
+    
     
 
     public static void main(String[] args){
@@ -42,7 +45,7 @@ public class REsearch{
 
                 //split the state information
                 String[] stateInfo = stateInput.split(",");
-                char symbol = stateInfo[0].charAt(0);
+                char[] symbol = stateInfo[0].toCharArray();
                 int n1 =Integer.parseInt(stateInfo[1]);
                 int n2 =Integer.parseInt(stateInfo[2]);
 
@@ -109,12 +112,12 @@ public class REsearch{
         deque = new Deque(states.size());
 
         //set pointer 
-        int pointer =0;
+        int pointerPos =0;
         int currentStatePos =0;
         State currenState;
         currenState = states.get(currentStatePos);
 
-        char symbol = currenState.getType();
+        char[] symbol = currenState.getType();
         char[] chars = string.toCharArray();
 
 
@@ -122,8 +125,30 @@ public class REsearch{
         while(true){
 
             //set the current pointer 
-            char current = chars[pointer];
+            char pointer = chars[pointerPos];
             //<IMPLEMENT SEARCH LOGIC HERE>
+            while(true){
+                if(symbol[0] == 'γ'){
+                    deque.push(currenState.next1(),currenState.next2());
+                }   
+                else{
+                    try{
+
+                    //pop of the stack
+                    currentStatePos = deque.pop();
+                    currenState = states.get(currentStatePos);
+                    symbol = currenState.getType();
+
+                    } catch (Exception e) {
+                        deque.setPossibleCurrentStates();
+                    }
+
+                }
+
+                if(symbol[0] == WILDCARD|| symbol[0] != BRANCH || symbol.length !=2){
+                    checkMatching(currenState,pointer);
+                }
+            }
             
             break;
 
@@ -131,6 +156,23 @@ public class REsearch{
 
 
         return false;
+    }
+
+    public static void checkMatching(State state, char pointer){
+        char[] symbol =  state.getType();
+        if(symbol[0] == WILDCARD){
+            deque.queue(state.next1(),state.next2());
+        }
+        else if(symbol.length == 2){
+            if(symbol[1] != pointer){
+                deque.queue(state.next1(),state.next2());
+            }
+        }
+        else{
+            if(symbol[0] == pointer){
+                deque.queue(state.next1(),state.next2());
+            }
+        }
     }
 
 

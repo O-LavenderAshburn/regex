@@ -34,10 +34,6 @@ public class Deque {
     public int pop(){
 
         //check if the possible current states is empty
-        if(possibleCurrentStates.size() == 0){
-            setPossibleCurrentStates();
-        }
-
         int stateNum = possibleCurrentStates.get(0);
         possibleCurrentStates.remove(0);
 
@@ -69,13 +65,25 @@ public class Deque {
         }
     }
 
+    /**
+     * Push possible current states onto the stack
+     * @param n1 next 1
+     * @param n2 next 2 
+     */
     public void push(int n1, int n2){
+
         push(n1);
         push(n2);
 
     }
 
+    /**
+     *  Push possible current state onto the stack
+     * @param n1 next state
+     */
     public void push(int n1){
+
+        //check if visited
         if(visited[n1]== 0){
 
             possibleCurrentStates.add(0, n1);
@@ -86,7 +94,7 @@ public class Deque {
     /**
      * copy all possibe next states to possible current states and remove all old possible next states
      */
-    private void setPossibleCurrentStates(){
+    public void setPossibleCurrentStates(){
         
         //copy possible next states to possible current states 
         Collections.copy(possibleNextStates,possibleCurrentStates);

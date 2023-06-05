@@ -2,16 +2,10 @@ public class State {
     private char[] symbol;
     private int n1;
     private int n2;
-    private Boolean notOperator = false;
-
-    public State(String sym,int next1,int next2 ){
+    
+    public State(char[] sym,int next1,int next2 ){
         
-        this.symbol = sym.toCharArray();
-        
-        if(symbol.length ==2)
-            notOperator =true;
-
-
+        this.symbol = sym;
         this.n1 = next1;
         this.n2 = next2;
     }
