@@ -39,6 +39,9 @@ public class ParseTest {
       "(a*|b+d.\\+)*d",
       "a*|b",
       "a|b*cd",
+      "[abc]",
+      "[[abc]",
+      "[]abc]",
       "r|!(a?)+\\.(b|(t*)d)"
     };
 
@@ -55,7 +58,11 @@ public class ParseTest {
       ")(a)(",
       ".\\a",
       "*dbs",
-      "+bd."
+      "+bd.",
+      "[abc",
+      "ab]",
+      "[abc]]",
+      "[ab[c]"
     };
 
     for (String expression : expressions) {

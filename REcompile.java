@@ -27,6 +27,7 @@ public class REcompile {
 
     // Attempt to parse pattern as valid regex
     expression();
+    System.out.println("DONE");
   }
 
   public static void expression() throws Exception {
@@ -42,18 +43,23 @@ public class REcompile {
       System.out.println("E -> TE");
       expression();
     }
-
-    System.out.println("E -> T");
+    else {
+      System.out.println("E -> T");
+    }
   }
 
   public static void alternation() throws Exception {
-    System.out.println("A -> |E");
+    System.out.println("A -> |...");
+
     i++;
     expression();
+
+    System.out.println("A -> |E");
   }
 
   public static void term() throws Exception {
     System.out.println("T -> F...");
+
     factor();
 
     // Check for operators
@@ -112,10 +118,38 @@ public class REcompile {
 
       // Validate closing bracket
       if (p[i] != ')') {
-        throw new Exception("Invalid pattern - expected bracket in column " + (i + 1));
+        throw new Exception("Invalid pattern - expected ) in column " + (i + 1));
       }
 
       i++;
+    }
+    // Check for alternation ([abc...n])
+    else if (p[i] == '[') {
+      int start = i;
+
+      while (p[i] != '\0') {
+        i++;
+
+        // Allow operators in position 1 of the alternation 
+        if (start != i - 1) {
+          if (p[i] == '[') {
+            throw new Exception("Invalid symbol [ in column " + (i + 1));
+          }
+  
+          if (p[i] == ']') {
+            break;
+          }
+        }
+      }
+
+      // If we have reached the end of the pattern,
+      // then the expression was invalid
+      if (p[i] == '\0') {
+        throw new Exception("Invalid pattern - expected ] in column " + (i + 1));
+      }
+      else {
+        i++;
+      }
     }
     // Check for wildcards
     else if (p[i] == '.') {
