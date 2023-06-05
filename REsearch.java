@@ -5,11 +5,13 @@ import java.util.*;
 public class REsearch{
     //symbo
     public static final char BRANCH = 'γ';
-    public static final char WILDCARD = 'α';
+    public static final char WILDCARD = 'ɑ';
 
     // Deque to keep track of possible current and next states
     private static Deque deque;
     private static ArrayList<State> states = new ArrayList<State>();
+    private static int currentStatePos;
+    private static State currentState;
     
     
 
@@ -35,7 +37,7 @@ public class REsearch{
 
             //read in states 
             // InputStreamReader isr = new InputStreamReader(System.in);
-            FileReader fr1= new FileReader("./testFSMs/one.txt");
+            FileReader fr1= new FileReader("./testFSMs/a.txt");
 
             BufferedReader reader = new BufferedReader(fr1);
     
@@ -110,55 +112,60 @@ public class REsearch{
     public static Boolean search(String string){
 
         //create new deque
+        currentStatePos =0;
         deque = new Deque(states.size());
 
         //set pointer 
         int pointer =0;
         char[] chars = string.toCharArray();
+        char currentChar =chars[pointer];
 
         //get position 0
-        int currentStatePos =0;
-        State currenState;
 
         //get the start state of the machine
-        currenState = states.get(currentStatePos);
+        currentState = states.get(currentStatePos);
 
 
         while(true){
 
-            //--If we have consumed all our input without getting to the final state--\\
-            if(pointer > chars.length){
-                break;
+            if(pointer != chars.length){
+                
+             //--If we have consumed all our input without getting to the final state--\\
+
+                if(pointer > chars.length){
+                    break;
+                }
+                //set the current pointer 
+                currentChar = chars[pointer];
             }
-
-            //set the current pointer 
-            char currentChar = chars[pointer];
-
-            char[] symbol = currenState.getType();
+            
+            
             
             while(true){
 
-                if(currenState.getType()[0]== 'γ'){
+                if(currentState.getType()[0]== 'γ'){
 
-                    deque.push(currenState.next1(),currenState.next2());
+                    deque.push(currentState.next1(),currentState.next2());
 
                     try{
 
                         if(deque.emptyStack()){
-                            //deque next states onto the stack and reset visited 
-                            deque.deque();
-                            deque.resetVisited();
 
-                            //if empty stack after deque
-                            if(deque.emptyStack()){
-                                return false;
+                            if(isEmpty()){
+                              return false;
                             }
-                            
+
+                            //--If we get back to state 0--\\
+                            if(currentState.next1() ==  0){
+                                return true;
+                            }
+
                             break;
+
                         }
 
                     currentStatePos = deque.pop();
-                    currenState = states.get(currentStatePos);
+                    currentState = states.get(currentStatePos);
 
                     } catch (Exception e){
                         System.err.println(e);
@@ -171,40 +178,42 @@ public class REsearch{
 
                     //pop of the stack
                         if(deque.emptyStack()){
-                            //deque next states onto the stack and reset visited 
-                            deque.deque();
-                            deque.resetVisited();
 
-                            //if empty stack after deque
-                            if(deque.emptyStack()){
-                                return false;
+                            if(isEmpty()){
+                                
+                              return false;
                             }
-                            
+
+                            //--If we get back to state 0--\\
+                            if(currentState.next1() ==  0){
+                                return true;
+                            }
+                            //exit and increment pointer
                             break;
                         }
                             
                         currentStatePos = deque.pop();
-                        currenState = states.get(currentStatePos);
+                        currentState = states.get(currentStatePos);
 
                     } catch (Exception e) {
 
                     }
 
                 }
-                if(!(currenState.getType()[0] == BRANCH)){
+                if(!(currentState.getType()[0] == BRANCH)){
 
-                    checkMatching(currenState,currentChar);
+                    checkMatching(currentState,currentChar);
 
                 }
 
                 //--If we get back to state 0--\\
-                if(currenState.next1() ==  0){
+                if(currentState.next1() ==  0){
                     return true;
                 }
 
 
             }
-            
+
             pointer++;
 
         }
@@ -224,17 +233,28 @@ public class REsearch{
         if(symbol[0] == WILDCARD){
             deque.queue(state.next1(),state.next2());
         }
-        // else if(symbol.length == 2){
-        //     if(symbol[1] != pointer){
-        //         deque.queue(state.next1(),state.next2());
-        //     }
-        // }
         else{
             if(symbol[0] == current){
                 deque.queue(state.next1(),state.next2());
             }
         }
     }
+
+    public static Boolean isEmpty(){
+        //deque next states onto the stack and reset visited 
+        deque.deque();
+        deque.resetVisited();
+
+        //if empty stack after deque
+        if(deque.emptyStack()){
+            return true;
+        }
+        currentStatePos = deque.pop();
+        currentState = states.get(currentStatePos);
+
+        return false;
+    }
+
 
 
     
