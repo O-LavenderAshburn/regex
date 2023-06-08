@@ -44,7 +44,8 @@ public class ParseTest {
       "[[abc]",
       "[]abc]",
       "r|!(a?)+\\.(b|(t*)d)",
-      "a*b*b+b?|bb+as[abc]"
+      "a*b*b+b?|bb+as[abc]",
+      "dfj(ld*)|kj|(df|g*|p?|hjfgo)|u(i*(s|d))"
     };
 
     for (String expression : expressions) {

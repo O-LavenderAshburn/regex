@@ -20,7 +20,7 @@ public class REcompile {
   private static ArrayList<State> states;
   private static int next;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     // Ensure the pattern was passed as an argument
     if (args.length != 1) {
       System.err.println("Usage: java REcompile [expression]");
@@ -35,41 +35,49 @@ public class REcompile {
     System.arraycopy(pattern, 0, p, 0, pattern.length);
     p[pattern.length] = '\0';
 
-    System.out.println("Parsing expression: " + Arrays.toString(p));
-
     // Initialise pointers
     i = 0;
     next = 1;
     states = new ArrayList<>();
+    states.add(null);
 
     // Attempt to parse pattern as valid regex
-    expression();
+    try {
+      int start = expression();
+      
+      // Add the 0th state and output state table
+      states.set(0, new State(Symbols.BRANCH, start, start));
+      states.add(new State(Symbols.BRANCH, 0, 0));
 
-    System.out.println("DONE");
+      i = 0;
+      for (State state : states) {
+        System.out.print(i + ") " + state.symbol);
+        System.out.println(", " + state.next1 + ", " + state.next2);
+
+        i++;
+      }
+    }
+    catch (Exception e) {
+      System.err.println(e);
+    }
   }
 
   /**
    * Search for a valid regex expression
    * 
-   * E → T
-   * E → TA
-   * E → TC
+   * E → C
+   * E → C|E
    */
-  private static void expression() throws Exception {
-    System.out.println("E → T...");
-
-    concatenation();
+  private static int expression() throws Exception {
+    int start = concatenation();
 
     // Check for an alternation
     if (p[i] == '|') {
-      System.out.println("E → C|E...");
       i++;
       expression();
-      System.out.println("E → C|E");
     }
-    else {
-      System.out.println("E → C");
-    }
+
+    return start;
   }
 
   /**
@@ -78,20 +86,19 @@ public class REcompile {
    * C → T
    * C → TC
    */
-  private static void concatenation() throws Exception {
-    System.out.println("C → T...");
-
-    term();
+  private static int concatenation() throws Exception {
+    int savedNext = next;
+    int startA = term();
 
     // Check for more concatenation
     if (p[i] != ')' && p[i] != '\0' && p[i] != '|') {
-      System.out.println("C → TC...");
-      concatenation();
-      System.out.println("C → TC");
+      int endA = next;
+      int startB = concatenation();
+
+      updateEnd(savedNext, endA, startB);
     }
-    else {
-      System.out.println("C → T");
-    }
+
+    return startA;
   }
 
   /**
@@ -102,27 +109,24 @@ public class REcompile {
    * T → F+
    * T → F?
    */
-  private static void term() throws Exception {
-    System.out.println("T → F...");
+  private static int term() throws Exception {
+    int savedNext = next;
+    int start = factor();
 
-    factor();
+    // Check for repetition operators
+    if (p[i] == '*' || p[i] == '+' || p[i] == '?') {
+      // Insert a branch state for the factor to loop back to
+      next++;
+      states.add(new State(Symbols.BRANCH, start, next));
 
-    // Check for operators
-    if (p[i] == '*') {
-      System.out.println("T → F*");
+      // Adjust for certain operators
+      if (p[i] != '+') start = next - 1;
+      if (p[i] == '?') updateEnd(savedNext, next - 1, next);
+
       i++;
     }
-    else if (p[i] == '+') {
-      System.out.println("T → F+");
-      i++;
-    }
-    else if (p[i] == '?') {
-      System.out.println("T → F?");
-      i++;
-    }
-    else {
-      System.out.println("T → F");
-    }
+
+    return start;
   }
 
   /**
@@ -135,20 +139,23 @@ public class REcompile {
    * F → [abc]
    * F → .
    */
-  private static void factor() throws Exception {
+  private static int factor() throws Exception {
+    int start = next;
+
     // Check for valid literal matches
     if (!OPERATORS.contains("" + p[i])) {
-      System.out.println("F → λ: " + p[i]);
+      next++;
+      states.add(new State(p[i], next, next));
       i++;
     }
     // Check for escape codes
     else if (p[i] == '\\') {
-      System.out.println("F → \\?");
       i++;
 
       // Validate escape symbol
       if (OPERATORS.contains("" + p[i])) {
-        System.out.println("F → \\Ω");
+        next++;
+        states.add(new State(p[i], next, next));
         i++;
       }
       else {
@@ -157,20 +164,26 @@ public class REcompile {
     }
     // Check for NOT operators
     else if (p[i] == '!') {
-      System.out.println("F → !E");
       i++;
 
-      factor();
+      // Wrap the factor in a NOT gate
+      next++;
+      State enterNotState = new State(Symbols.NOT_IN, 0, 0);
+      states.add(enterNotState);
+
+      int middle = factor();
+      next++;
+      states.add(new State(Symbols.NOT_OUT, next, next));
+      
+      enterNotState.next1 = middle;
+      enterNotState.next2 = middle;
     }
     // Check for raised precedence
     else if (p[i] == '(') {
-      System.out.println("F → (E");
       i++;
 
       // Start is no longer 'next' but the start of the first state in the expression
-      expression();
-
-      System.out.println("F → (E)");
+      start = expression();
 
       // Validate closing bracket
       if (p[i] != ')') {
@@ -181,13 +194,15 @@ public class REcompile {
     }
     // Check for alternation ([abc...n])
     else if (p[i] == '[') {
-      int start = i;
+      int s = i;
+      ArrayList<Character> symbols = new ArrayList<>();
 
+      // Loop through to validate alternation (and get the symbol set)
       while (p[i] != '\0') {
         i++;
 
         // Allow operators in position 1 of the alternation 
-        if (start != i - 1) {
+        if (s != i - 1) {
           if (p[i] == '[') {
             error("Invalid symbol [ in column");
           }
@@ -196,6 +211,9 @@ public class REcompile {
             break;
           }
         }
+
+        // Otherwise,
+        symbols.add(p[i]);
       }
 
       // If we have reached the end of the pattern,
@@ -203,18 +221,61 @@ public class REcompile {
       if (p[i] == '\0') {
         error("Invalid pattern - expected ] in column");
       }
-      else {
-        i++;
+      
+      // Otherwise add the alternation derived from the symbol set
+      int j = 0;
+      int end = next + symbols.size() * 2;
+      for (Character symbol : symbols) {
+        // Last symbol doesn't need to branch
+        if (j < symbols.size() - 1) {
+          next++;
+          states.add(new State(Symbols.BRANCH, next, next + 1));
+        }
+
+        states.add(new State(symbol, end, end));
+
+        next++;
+        j++;
       }
+
+      i++;
     }
     // Check for wildcards
     else if (p[i] == '.') {
-      System.out.println("F → .");
+      next++;
+      states.add(new State(Symbols.WILDCARD, next, next));
       i++;
     }
     // Catch unhandled operators
     else if (p[i] != '\0') {
       error("Unhandled operator <" + p[i] + ">");
+    }
+
+    return start;
+  }
+
+  /**
+   * Loop through a given range of states and update the tail nodes to
+   * point to the given target
+   * 
+   * @param start The index of the state to start from
+   * @param currentEnd The current state pointed to by the tail states
+   * @param targetEnd The target state to point the tails to
+   */
+  private static void updateEnd(int start, int currentEnd, int targetEnd) {
+    if (currentEnd == targetEnd) return;
+
+    System.out.println(start + " > " + (currentEnd - 1) + " : " + targetEnd);
+
+    for (int j = start; j < currentEnd; j++) {
+      State current = states.get(j);
+
+      if (current.next1 == currentEnd) {
+        current.next1 = targetEnd;
+      }
+      if (current.next2 == currentEnd) {
+        current.next2 = targetEnd;
+      }
     }
   }
 
