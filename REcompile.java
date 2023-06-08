@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -16,6 +17,9 @@ public class REcompile {
   private static char[] p;
   private static int i;
 
+  private static ArrayList<State> states;
+  private static int next;
+
   public static void main(String[] args) throws Exception {
     // Ensure the pattern was passed as an argument
     if (args.length != 1) {
@@ -33,11 +37,15 @@ public class REcompile {
 
     System.out.println("Parsing expression: " + Arrays.toString(p));
 
-    // Initialise pointer
+    // Initialise pointers
     i = 0;
+    next = 1;
+    states = new ArrayList<>();
 
     // Attempt to parse pattern as valid regex
     expression();
+
+    System.out.println("DONE");
   }
 
   /**
@@ -50,35 +58,18 @@ public class REcompile {
   private static void expression() throws Exception {
     System.out.println("E → T...");
 
-    term();
+    concatenation();
 
     // Check for an alternation
     if (p[i] == '|') {
-      System.out.println("E → TA");
-      alternation();
-    }
-    // Check for concatenation
-    else if (p[i] != ')' && p[i] != '\0') {
-      System.out.println("E → TC");
-      concatenation();
+      System.out.println("E → C|E...");
+      i++;
+      expression();
+      System.out.println("E → C|E");
     }
     else {
-      System.out.println("E → T");
+      System.out.println("E → C");
     }
-  }
-
-  /**
-   * Search for a valid regex alternation
-   * 
-   * A → |E
-   */
-  private static void alternation() throws Exception {
-    System.out.println("A → |E...");
-
-    i++;
-    expression();
-
-    System.out.println("A → |E");
   }
 
   /**
