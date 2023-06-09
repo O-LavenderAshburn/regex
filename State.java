@@ -10,7 +10,7 @@ public class State {
         this.next2 = next2;
     }
     
-    public char getType(){
+    public char getSymbol(){
         return this.symbol;
     }
 }
