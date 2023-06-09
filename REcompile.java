@@ -29,7 +29,7 @@ public class REcompile {
 
     // Convert expression to char array for more convenient index access
     char[] pattern = args[0].toCharArray();
-    
+
     // Include a null byte to simplify error checks
     p = new char[pattern.length + 1];
     System.arraycopy(pattern, 0, p, 0, pattern.length);
@@ -49,16 +49,13 @@ public class REcompile {
       states.set(0, new State(Symbols.BRANCH, start, start));
       states.add(new State(Symbols.BRANCH, 0, 0));
 
-      i = 0;
+      // Output the description of the FSM
       for (State state : states) {
-        System.out.print(i + ") " + state.symbol);
-        System.out.println(", " + state.next1 + ", " + state.next2);
-
-        i++;
+        System.out.println(state.symbol + ", " + state.next1 + ", " + state.next2);
       }
     }
     catch (Exception e) {
-      System.err.println(e);
+      System.err.println(e.getMessage());
     }
   }
 
@@ -69,12 +66,25 @@ public class REcompile {
    * E → C|E
    */
   private static int expression() throws Exception {
+    int savedNext = next;
     int start = concatenation();
 
     // Check for an alternation
     if (p[i] == '|') {
       i++;
-      expression();
+
+      // Reserve a space for the branch state (to avoid having to loop through the first branch)
+      int endA = next;
+      next++;
+      State branch = new State(Symbols.BRANCH, start, 0);
+      states.add(branch);
+
+      // Create the second branch and add the branch machine
+      int startB = expression();
+      branch.next2 = startB;
+
+      updateEnd(savedNext, endA, next);
+      start = endA;
     }
 
     return start;
@@ -159,7 +169,7 @@ public class REcompile {
         i++;
       }
       else {
-        error("Invalid escape sequence in column");
+        error("Invalid escape sequence");
       }
     }
     // Check for NOT operators
@@ -187,7 +197,7 @@ public class REcompile {
 
       // Validate closing bracket
       if (p[i] != ')') {
-        error("Invalid pattern - expected ) in column");
+        error("Invalid pattern - expected )");
       }
 
       i++;
@@ -204,7 +214,7 @@ public class REcompile {
         // Allow operators in position 1 of the alternation 
         if (s != i - 1) {
           if (p[i] == '[') {
-            error("Invalid symbol [ in column");
+            error("Invalid symbol [");
           }
   
           if (p[i] == ']') {
@@ -219,7 +229,7 @@ public class REcompile {
       // If we have reached the end of the pattern,
       // then the expression was invalid
       if (p[i] == '\0') {
-        error("Invalid pattern - expected ] in column");
+        error("Invalid pattern - expected ]");
       }
       
       // Otherwise add the alternation derived from the symbol set
@@ -265,8 +275,6 @@ public class REcompile {
   private static void updateEnd(int start, int currentEnd, int targetEnd) {
     if (currentEnd == targetEnd) return;
 
-    System.out.println(start + " > " + (currentEnd - 1) + " : " + targetEnd);
-
     for (int j = start; j < currentEnd; j++) {
       State current = states.get(j);
 
@@ -280,6 +288,6 @@ public class REcompile {
   }
 
   private static void error(String message) throws Exception {
-    throw new Exception(message + " in column " + (i + 1) + " : " + Arrays.toString(p));
+    throw new Exception(message + " in column " + (i + 1));
   }
 }
