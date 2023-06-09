@@ -49,8 +49,10 @@ public class REcompile {
       states.add(new State(Symbols.BRANCH, 0, 0));
 
       // Output the description of the FSM
+      int i = 0;
       for (State state : states) {
-        System.out.println(state.getType() + "," + state.next1 + "," + state.next2);
+        System.out.println(i + ") " + state.getType() + "," + state.next1 + "," + state.next2);
+        i++;
       }
     } catch (Exception e) {
       System.err.println(e.getMessage());
@@ -231,7 +233,7 @@ public class REcompile {
 
       // Otherwise add the alternation derived from the symbol set
       int j = 0;
-      int end = next + symbols.size() * 2;
+      int end = next + symbols.size() * 2 - 1;
       for (Character symbol : symbols) {
         // Last symbol doesn't need to branch
         if (j < symbols.size() - 1) {
