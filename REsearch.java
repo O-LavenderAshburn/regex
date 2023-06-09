@@ -28,10 +28,10 @@ public class REsearch {
 
     try {
       // Read in states
-      // InputStreamReader isr = new InputStreamReader(System.in);
-      FileReader fr1 = new FileReader("./testFSMs/a.txt");
+      InputStreamReader isr = new InputStreamReader(System.in);
+      // FileReader fr1 = new FileReader("./testFSMs/a.txt");
 
-      BufferedReader reader = new BufferedReader(fr1);
+      BufferedReader reader = new BufferedReader(isr);
 
       // Read in and create states
       String stateInput = reader.readLine();
