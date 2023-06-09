@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 /**
  * Accepts a regex pattern from the command line
- * and compiles it into a finite state machine, 
+ * and compiles it into a finite state machine,
  * a description of which is then outputted to standard
  * output if the pattern was valid.
  * 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class REcompile {
   // A list of regex operators - and thus illegal characters otherwise
   private static final String OPERATORS = ".*+?|()\\[]!\0";
-  
+
   // The pattern and pointer to current character in pattern
   private static char[] p;
   private static int i;
@@ -43,17 +43,16 @@ public class REcompile {
     // Attempt to parse pattern as valid regex
     try {
       int start = expression();
-      
+
       // Add the 0th state and output state table
       states.set(0, new State(Symbols.BRANCH, start, start));
       states.add(new State(Symbols.BRANCH, 0, 0));
 
       // Output the description of the FSM
       for (State state : states) {
-        System.out.println(state.symbol + ", " + state.next1 + ", " + state.next2);
+        System.out.println(state.getType() + "," + state.next1 + "," + state.next2);
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       System.err.println(e.getMessage());
     }
   }
@@ -166,8 +165,7 @@ public class REcompile {
         next++;
         states.add(new State(p[i], next, next));
         i++;
-      }
-      else {
+      } else {
         error("Invalid escape sequence");
       }
     }
@@ -183,7 +181,7 @@ public class REcompile {
       int middle = factor();
       next++;
       states.add(new State(Symbols.NOT_OUT, next, next));
-      
+
       enterNotState.next1 = middle;
       enterNotState.next2 = middle;
     }
@@ -210,12 +208,12 @@ public class REcompile {
       while (p[i] != '\0') {
         i++;
 
-        // Allow operators in position 1 of the alternation 
+        // Allow operators in position 1 of the alternation
         if (s != i - 1) {
           if (p[i] == '[') {
             error("Invalid symbol [");
           }
-  
+
           if (p[i] == ']') {
             break;
           }
@@ -230,7 +228,7 @@ public class REcompile {
       if (p[i] == '\0') {
         error("Invalid pattern - expected ]");
       }
-      
+
       // Otherwise add the alternation derived from the symbol set
       int j = 0;
       int end = next + symbols.size() * 2;
@@ -267,12 +265,13 @@ public class REcompile {
    * Loop through a given range of states and update the tail nodes to
    * point to the given target
    * 
-   * @param start The index of the state to start from
+   * @param start      The index of the state to start from
    * @param currentEnd The current state pointed to by the tail states
-   * @param targetEnd The target state to point the tails to
+   * @param targetEnd  The target state to point the tails to
    */
   private static void updateEnd(int start, int currentEnd, int targetEnd) {
-    if (currentEnd == targetEnd) return;
+    if (currentEnd == targetEnd)
+      return;
 
     for (int j = start; j < currentEnd; j++) {
       State current = states.get(j);
