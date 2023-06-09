@@ -1,3 +1,7 @@
+/**
+ * Represents a single state in a
+ * finite state machine
+ */
 public class State {
   public Character symbol;
   public int next1;

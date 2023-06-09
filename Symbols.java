@@ -1,3 +1,8 @@
+/**
+ * Includes code friendly references to 
+ * the non-alphanumeric characters used
+ * throughout this regex implementation.
+ */
 public final class Symbols {
   // Restrict instantiation
   private Symbols() {}
