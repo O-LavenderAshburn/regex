@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "REsearch",
+      "request": "launch",
+      "mainClass": "REsearch",
+      "projectName": "regex_759c8c9"
+    },
+    {
+      "type": "java",
       "name": "REcompile",
       "request": "launch",
       "mainClass": "REcompile",
