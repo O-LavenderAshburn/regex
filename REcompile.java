@@ -49,10 +49,8 @@ public class REcompile {
       states.add(new State(Symbols.BRANCH, 0, 0));
 
       // Output the description of the FSM
-      int i = 0;
       for (State state : states) {
-        System.out.println(i + ") " + state.getType() + "," + state.next1 + "," + state.next2);
-        i++;
+        System.out.println(state.getType() + "," + state.next1 + "," + state.next2);
       }
     } catch (Exception e) {
       System.err.println(e.getMessage());

@@ -34,8 +34,10 @@ public class REsearch {
       while (line != null) {
         // Extract the state information from the line
         char symbol = line.charAt(0);
-        int n1 = Character.getNumericValue(line.charAt(2));
-        int n2 = Character.getNumericValue(line.charAt(4));
+
+        String[] nextStates = line.substring(2).split(",");
+        int n1 = Integer.parseInt(nextStates[0]);
+        int n2 = Integer.parseInt(nextStates[1]);
 
         // Create state and add to list of states
         State newState = new State(symbol, n1, n2);

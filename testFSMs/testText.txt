@@ -1,6 +1,7 @@
-a
-b
-v;ojopjklj
-*[][12124...,,///
-yruscop
+hello
+world
 
+this
+is
+A
+file
