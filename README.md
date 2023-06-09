@@ -1,6 +1,15 @@
 # Regular Expression Compiler
 
-#### Developers
+An implementation of a regular expression parser, compiler and matcher. Consists of two main programs, `REcompile` and `REsearch` that
+can be used together to search through files for instances of the given regular expression. Under the hood a finite state machine is built
+and shared between the two programs.
 
-Since multiple people will be working on this project - all changes must be applied to a separate branch first. These changes are then approved and merged into the `main` branch.
-__Remember to regularly sync with `main` to prevent merge conflicts__
+## Usage
+
+To compile a regex expression:
+* `java REcompile [expression]`
+
+To search through a file for pattern instances
+* `java REsearch [filename]`
+
+See [here](https://github.com/luke-finlayson/regex/wiki/Operations-&-Expressions) for valid regex syntax and full documentation.
