@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.*;
 
 public class REsearch {
   // Deque to keep track of possible current and next states
@@ -16,21 +15,17 @@ public class REsearch {
     String currentLine;
 
     // Print usage and exit
-    // if(args.length < 1){
-
-    // //error
-    // System.out.println("Usage: ");
-    // return;
-    // }
+    if(args.length < 1){
+      System.out.println("Usage: ");
+      return;
+    }
 
     // File to search
-    // String filename = args[0];
+    String filename = args[0];
 
     try {
       // Read in states
       InputStreamReader isr = new InputStreamReader(System.in);
-      // FileReader fr1 = new FileReader("./testFSMs/a.txt");
-
       BufferedReader reader = new BufferedReader(isr);
 
       // Read in and create states
@@ -53,7 +48,7 @@ public class REsearch {
       reader.close();
 
       // Read the file
-      FileReader fr = new FileReader("./testFSMs/testText.txt");
+      FileReader fr = new FileReader(filename);
       BufferedReader lineReader = new BufferedReader(fr);
 
       // Read the first line
