@@ -71,8 +71,7 @@ public class REcompile {
     if (p[i] == '|') {
       i++;
 
-      // Reserve a space for the branch state (to avoid having to loop through the
-      // first branch)
+      // Reserve a space for the branch state (to avoid having to loop through the first branch)
       int endA = next;
       next++;
       State branch = new State(Symbols.BRANCH, start, 0);
@@ -129,10 +128,8 @@ public class REcompile {
       states.add(new State(Symbols.BRANCH, start, next));
 
       // Adjust for certain operators
-      if (p[i] != '+')
-        start = next - 1;
-      if (p[i] == '?')
-        updateEnd(savedNext, next - 1, next);
+      if (p[i] != '+') start = next - 1;
+      if (p[i] == '?') updateEnd(savedNext, next - 1, next);
 
       i++;
     }
