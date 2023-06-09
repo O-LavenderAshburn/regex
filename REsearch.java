@@ -18,7 +18,6 @@ public class REsearch {
   public static void main(String[] args) {
     // Pointers and marks
     int mark = 0;
-    Boolean success;
     String currentLine;
 
     // Print usage and exit
@@ -72,21 +71,37 @@ public class REsearch {
 
       // While we have lines to process
       while (line != null) {
+        int[] matches = new int[line.length()];
+
         // While we still have a sub-string to search
         while (mark < line.length()) {
           // Shorten the current line to search
           currentLine = line.substring(mark);
 
           // Search the current line
-          success = search(currentLine);
+          int matchLength = search(currentLine);
 
-          if (success == true) {
-            System.out.println(line);
-            break;
+          if (matchLength != -1) {
+            for (int i = mark; i <= mark + matchLength; i++) {
+              matches[i] = 1;
+            }
           }
 
           mark++;
         }
+
+        // Output the line - highlighting the matched characters
+        for (int i = 0; i < matches.length; i++) {
+          if (matches[i] != 1) {
+            System.out.print("\u001B[0m");
+          }
+          else {
+            System.out.print("\u001B[1m\u001B[4m");
+          }
+
+          System.out.print(line.charAt(i));
+        }
+        System.out.println();
 
         // Get the next line to process and increment lineNumber and reset mark
         line = lineReader.readLine();
@@ -108,9 +123,9 @@ public class REsearch {
    * FSM pattern.
    * 
    * @param str The string to search through
-   * @return True if the pattern was found
+   * @return The length of the pattern found (or -1 if it was not)
    */
-  public static Boolean search(String str) {
+  public static int search(String str) {
     // Initialise the deque with the start state
     deque = new Deque(states.size());
     deque.push(0, 0);
@@ -163,7 +178,7 @@ public class REsearch {
 
         // Check if any of the correct paths lead to the end
         if (state.next1 == endState || state.next2 == endState) {
-          return true;
+          return pointer;
         }
       }
 
@@ -173,6 +188,6 @@ public class REsearch {
     }
 
     // If we reached the end of the string without a match, there is no match
-    return false;
+    return -1;
   }
 }
