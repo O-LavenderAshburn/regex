@@ -231,7 +231,7 @@ public class REcompile {
 
       // Otherwise add the alternation derived from the symbol set
       int j = 0;
-      int end = next + symbols.size() * 2;
+      int end = next + symbols.size() * 2 - 1;
       for (Character symbol : symbols) {
         // Last symbol doesn't need to branch
         if (j < symbols.size() - 1) {

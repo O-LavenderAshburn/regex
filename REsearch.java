@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.*;
 
 public class REsearch {
   // Deque to keep track of possible current and next states
@@ -16,44 +15,46 @@ public class REsearch {
     String currentLine;
 
     // Print usage and exit
-    // if(args.length < 1){
-
-    // //error
-    // System.out.println("Usage: ");
-    // return;
-    // }
+    if (args.length < 1) {
+      System.out.println("Usage: ");
+      return;
+    }
 
     // File to search
-    // String filename = args[0];
+    String filename = args[0];
 
+    // Open input stream to read FSM from standard input
+    InputStreamReader isr = new InputStreamReader(System.in);
+    BufferedReader reader = new BufferedReader(isr);
+
+    // Read in the description of the finite state machine
     try {
-      // Read in states
-      InputStreamReader isr = new InputStreamReader(System.in);
-      // FileReader fr1 = new FileReader("./testFSMs/a.txt");
+      String line = reader.readLine();
 
-      BufferedReader reader = new BufferedReader(isr);
+      while (line != null) {
+        // Extract the state information from the line
+        char symbol = line.charAt(0);
 
-      // Read in and create states
-      String stateInput = reader.readLine();
-
-      // While we have states to read in
-      while (stateInput != null) {
-        // Split the state information
-        String[] stateInfo = stateInput.split(",");
-        char symbol = stateInfo[0].charAt(0);
-        int n1 = Integer.parseInt(stateInfo[1]);
-        int n2 = Integer.parseInt(stateInfo[2]);
+        String[] nextStates = line.substring(2).split(",");
+        int n1 = Integer.parseInt(nextStates[0]);
+        int n2 = Integer.parseInt(nextStates[1]);
 
         // Create state and add to list of states
         State newState = new State(symbol, n1, n2);
         states.add(newState);
 
-        stateInput = reader.readLine();
+        line = reader.readLine();
       }
-      reader.close();
 
-      // Read the file
-      FileReader fr = new FileReader("./testFSMs/testText.txt");
+      reader.close();
+    }
+    catch (IOException e) {
+      System.err.println(e);
+    }
+
+    try {
+      // Open the file containing the strings to search
+      FileReader fr = new FileReader(filename);
       BufferedReader lineReader = new BufferedReader(fr);
 
       // Read the first line
@@ -83,10 +84,12 @@ public class REsearch {
       }
 
       lineReader.close();
-
-    } catch (Exception e) {
+    }
+    catch (FileNotFoundException e) {
+      System.err.println("Error: " + filename + " not found.");
+    }
+    catch (IOException e) {
       System.err.println(e);
-      return;
     }
   }
 
@@ -118,44 +121,37 @@ public class REsearch {
         if (currentState.getType() == Symbols.BRANCH) {
           deque.push(currentState.next1, currentState.next2);
 
-          try {
-            if (deque.emptyStack()) {
-              if (isEmpty()) {
-                return false;
-              }
-
-              // If we get back to state 0
-              if (currentState.next1 == 0) {
-                return true;
-              }
-
-              break;
+          if (deque.emptyStack()) {
+            if (isEmpty()) {
+              return false;
             }
 
-            currentStatePos = deque.pop();
-            currentState = states.get(currentStatePos);
+            // If we get back to state 0
+            if (currentState.next1 == 0) {
+              return true;
+            }
 
-          } catch (Exception e) {
-            System.err.println(e);
+            break;
           }
+
+          currentStatePos = deque.pop();
+          currentState = states.get(currentStatePos);
         }
         else {
-          try {
-            // pop of the stack
-            if (deque.emptyStack()) {
-              if (isEmpty()) return false;
+          // pop of the stack
+          if (deque.emptyStack()) {
+            if (isEmpty()) return false;
 
-              // --If we get back to state 0--\\
-              if (currentState.next1 == 0) {
-                return true;
-              }
-              // exit and increment pointer
-              break;
+            // If we get back to state 0
+            if (currentState.next1 == 0) {
+              return true;
             }
+            // exit and increment pointer
+            break;
+          }
 
-            currentStatePos = deque.pop();
-            currentState = states.get(currentStatePos);
-          } catch (Exception e) {}
+          currentStatePos = deque.pop();
+          currentState = states.get(currentStatePos);
 
         }
 
