@@ -1,7 +1,0 @@
-hello
-world
-
-this
-is
-A
-file
