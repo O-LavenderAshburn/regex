@@ -3,18 +3,20 @@ import java.util.*;
 /**
  * Class to Queue possible next states and pop possible current states 
  * 
- * Created by Oscar Ashburn, 1582735
+ * Created by Oscar Ashburn, [ID]
  * 
  * @version 1.0.0
  */
 public class Deque {
   // Deque stack and queue
-  private ArrayList<DequeNode> possibleCurrentStates = new ArrayList<>();
-  private ArrayList<DequeNode> possibleNextStates = new ArrayList<>();
-  private int[] visited;
+  private ArrayList<Integer> possibleCurrentStates = new ArrayList<Integer>();
+  private ArrayList<Integer> possibleNextStates = new ArrayList<Integer>();
+  private int[] visited; 
   
   // Initialise with possible current state 0
   public Deque(int numStates){
+    possibleCurrentStates.add(0);
+
     // Initialise visited array 
     visited = new int[numStates];
     Arrays.fill(visited,0);
@@ -24,9 +26,9 @@ public class Deque {
    * Pop the current state off the stack
    * @return  state number of the possible current state 
    */
-  public DequeNode pop(){
+  public int pop(){
     // Check if the possible current states is empty
-    DequeNode stateNum = possibleCurrentStates.get(0);
+    int stateNum = possibleCurrentStates.get(0);
     possibleCurrentStates.remove(0);
 
     return stateNum;
@@ -37,18 +39,18 @@ public class Deque {
   * @param n1 state index 1
   * @param n2 state index 2
   */
-  public void queue(int next1, int next2, int notCount){
-    queue(next1, notCount);
-    queue(next2, notCount);
+  public void queue(int n1, int n2){
+    queue(n1);
+    queue(n2);
   }
 
   /**
    * Queues the next possible state if it has not been visited 
    * @param n1 state index
    */
-  public void queue(int index, int notCount) {
-    // Check if it has been visited
-    possibleNextStates.add(new DequeNode(index, notCount));
+  public void queue(int n1){
+    // Check if it has been visited 
+    possibleNextStates.add(n1);
   }
 
   /**
@@ -56,21 +58,21 @@ public class Deque {
    * @param n1 next 1
    * @param n2 next 2 
    */
-  public void push(int next1, int next2, int notCount) {
+  public void push(int n1, int n2){
     // Push onto the stack
-    push(next1, notCount);
-    push(next2, notCount);
+    push(n1);
+    push(n2);
   }
 
   /**
    *  Push possible current state onto the stack
    * @param n1 next state
    */
-  public void push(int index, int notCount) {
-    // Only push onto the stack if it has been visited
-    if (visited[index] == 0) {
-      possibleCurrentStates.add(0, new DequeNode(index, notCount));
-      visited[index] = 1;
+  public void push(int n1){
+    //check if visited
+    if (visited[n1]== 0) {
+      possibleCurrentStates.add(0, n1);
+      visited[n1]=1;
     }
   }
 
@@ -81,32 +83,17 @@ public class Deque {
     // Copy possible next states to possible current states 
     possibleCurrentStates = possibleNextStates;
     // Clear possible next states
-    possibleNextStates = new ArrayList<>();
+    possibleNextStates = new ArrayList<Integer>();
   }
   
   public void resetVisited(){
     Arrays.fill(visited,0);
   }
 
-  public boolean emptyStack(){
-    return possibleCurrentStates.size() == 0;
-  }
-
-  public boolean isEmpty() {
-    return possibleCurrentStates.isEmpty() && possibleNextStates.isEmpty();
-  }
-
-  public String size() {
-    return "s: " + possibleCurrentStates.size() + ", q: " + possibleNextStates.size();
-  }
-
-  public String queueToString() {
-    String result = "[ ";
-
-    for (DequeNode node : possibleNextStates) {
-      result += node.getIndex() + ", " + node.getNotCount() + " | ";
+  public Boolean emptyStack(){
+    if (possibleCurrentStates.size() == 0){
+      return  true;
     }
-
-    return result + "]";
+    return false;
   }
 }

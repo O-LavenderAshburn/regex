@@ -50,7 +50,7 @@ public class REcompile {
 
       // Output the description of the FSM
       for (State state : states) {
-        System.out.println(state.getSymbol() + "," + state.next1 + "," + state.next2);
+        System.out.println(state.getType() + "," + state.next1 + "," + state.next2);
       }
     } catch (Exception e) {
       System.err.println(e.getMessage());

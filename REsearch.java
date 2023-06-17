@@ -1,23 +1,17 @@
 import java.io.*;
 import java.util.ArrayList;
 
-/**
- * Reads a description of a finite state machine
- * from standard input and uses it to search for
- * the pattern described by the FSM in a given text
- * file.
- * 
- * Created by Oscar Ashburn, 1582735
- */
 public class REsearch {
   // Deque to keep track of possible current and next states
   private static Deque deque;
   private static ArrayList<State> states = new ArrayList<State>();
-  private static int endState;
+  private static int currentStatePos;
+  private static State currentState;
 
   public static void main(String[] args) {
     // Pointers and marks
     int mark = 0;
+    Boolean success;
     String currentLine;
 
     // Print usage and exit
@@ -58,9 +52,6 @@ public class REsearch {
       System.err.println(e);
     }
 
-    // Save the index of the end state
-    endState = states.size() - 1;
-
     try {
       // Open the file containing the strings to search
       FileReader fr = new FileReader(filename);
@@ -71,37 +62,21 @@ public class REsearch {
 
       // While we have lines to process
       while (line != null) {
-        int[] matches = new int[line.length()];
-
         // While we still have a sub-string to search
         while (mark < line.length()) {
           // Shorten the current line to search
           currentLine = line.substring(mark);
 
           // Search the current line
-          int matchLength = search(currentLine);
+          success = search(currentLine);
 
-          if (matchLength != -1) {
-            for (int i = mark; i <= mark + matchLength; i++) {
-              matches[i] = 1;
-            }
+          if (success == true) {
+            System.out.println(line);
+            break;
           }
 
           mark++;
         }
-
-        // Output the line - highlighting the matched characters
-        for (int i = 0; i < matches.length; i++) {
-          if (matches[i] != 1) {
-            System.out.print("\u001B[0m");
-          }
-          else {
-            System.out.print("\u001B[1m\u001B[4m");
-          }
-
-          System.out.print(line.charAt(i));
-        }
-        System.out.println();
 
         // Get the next line to process and increment lineNumber and reset mark
         line = lineReader.readLine();
@@ -118,76 +93,113 @@ public class REsearch {
     }
   }
 
-  /**
-   * Search through a given string using the stored
-   * FSM pattern.
-   * 
-   * @param str The string to search through
-   * @return The length of the pattern found (or -1 if it was not)
-   */
-  public static int search(String str) {
-    // Initialise the deque with the start state
+  public static Boolean search(String string) {
+    // Create new deque
+    currentStatePos = 0;
     deque = new Deque(states.size());
-    deque.push(0, 0);
 
     // Set pointer
     int pointer = 0;
-    str += "\0";
-    char[] chars = str.toCharArray();
-    char current;
-    
-    DequeNode node;
-    State state;
+    char[] chars = string.toCharArray();
+    char currentChar = chars[pointer];
 
-    // Loop through each character in the string
-    while (pointer < chars.length && !deque.isEmpty()) {
-      current = chars[pointer];
+    // Get the start state of the machine
+    currentState = states.get(currentStatePos);
 
-      while (!deque.emptyStack()) {   // Loop until the stack is empty
-        // Pop one of the current possible states off the stack
-        node = deque.pop();
-        state = states.get(node.getIndex());
-
-        // Process the current state
-        switch (state.getSymbol()) {
-          case Symbols.BRANCH:
-            deque.push(state.next1, state.next2, node.getNotCount());
-            break;
-          case Symbols.NOT_IN:
-            deque.push(state.next1, node.getNotCount() + 1);
-            break;
-          case Symbols.NOT_OUT:
-            deque.push(state.next1, node.getNotCount() - 1);
-            break;
-          case Symbols.WILDCARD:
-            if (!node.isNot()) {
-              deque.queue(state.next1, node.getNotCount());
-            }
-            break;
-          default:
-            if (!node.isNot() && state.getSymbol() == current) {
-              deque.queue(state.next1, node.getNotCount());
-            }
-            else if (node.isNot() && state.getSymbol() != current) {
-              deque.queue(state.next1, node.getNotCount());
-            }
-            else {
-              continue;
-            };
+    while (true) {
+      if (pointer != chars.length) {
+        // If we have consumed all our input without getting to the final state
+        if (pointer > chars.length) {
+          break;
         }
 
-        // Check if any of the correct paths lead to the end
-        if (state.next1 == endState || state.next2 == endState) {
-          return pointer;
+        // set the current pointer
+        currentChar = chars[pointer];
+      }
+
+      while (true) {
+        if (currentState.getType() == Symbols.BRANCH) {
+          deque.push(currentState.next1, currentState.next2);
+
+          if (deque.emptyStack()) {
+            if (isEmpty()) {
+              return false;
+            }
+
+            // If we get back to state 0
+            if (currentState.next1 == 0) {
+              return true;
+            }
+
+            break;
+          }
+
+          currentStatePos = deque.pop();
+          currentState = states.get(currentStatePos);
+        }
+        else {
+          // pop of the stack
+          if (deque.emptyStack()) {
+            if (isEmpty()) return false;
+
+            // If we get back to state 0
+            if (currentState.next1 == 0) {
+              return true;
+            }
+            // exit and increment pointer
+            break;
+          }
+
+          currentStatePos = deque.pop();
+          currentState = states.get(currentStatePos);
+
+        }
+
+        if (!(currentState.getType() == Symbols.BRANCH)) {
+          checkMatching(currentState, currentChar);
+        }
+
+        // If we get back to state 0
+        if (currentState.next1 == 0) {
+          return true;
         }
       }
 
-      // Move onto the next character
-      deque.deque();
       pointer++;
     }
 
-    // If we reached the end of the string without a match, there is no match
-    return -1;
+    return false;
+  }
+
+  /**
+   * Check if we are matching a character
+   * 
+   * @param state   the current state
+   * @param pointer the character we are currently pointing at
+   */
+  public static void checkMatching(State state, char current) {
+    char symbol = state.getType();
+
+    if (symbol == Symbols.WILDCARD) {
+      deque.queue(state.next1, state.next2);
+    } else if (symbol == current) {
+      deque.queue(state.next1, state.next2);
+    }
+  }
+
+  public static Boolean isEmpty() {
+    // Deque next states onto the stack and reset visited
+    deque.deque();
+    deque.resetVisited();
+
+    // If empty stack after deque
+    if (deque.emptyStack()) {
+      return true;
+    }
+
+    currentStatePos = deque.pop();
+    currentState = states.get(currentStatePos);
+
+    return false;
   }
 }
