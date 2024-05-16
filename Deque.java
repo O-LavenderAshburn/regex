@@ -4,7 +4,7 @@ import java.util.*;
  * Class to Queue possible next states and pop possible current states 
  * 
  * Created by Oscar Ashburn, [ID]
- * 
+ * @author Oscar Ashburn
  * @version 1.0.0
  */
 public class Deque {
@@ -85,11 +85,17 @@ public class Deque {
     // Clear possible next states
     possibleNextStates = new ArrayList<Integer>();
   }
-  
+
+   /**
+   *  Reset visited 
+   */
   public void resetVisited(){
     Arrays.fill(visited,0);
   }
 
+   /**
+   *  Check if stack is empty
+   */
   public Boolean emptyStack(){
     if (possibleCurrentStates.size() == 0){
       return  true;
