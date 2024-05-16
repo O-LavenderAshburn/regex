@@ -1,6 +1,13 @@
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * Regex pattern searcher,Searches pattern with the output generated from REcompile
+ * 
+ * Created by Oscar Ashburn, [ID]
+ * @author Oscar Ashburn
+ * @version 1.0.0
+ */
 public class REsearch {
   // Deque to keep track of possible current and next states
   private static Deque deque;
@@ -35,17 +42,20 @@ public class REsearch {
         // Extract the state information from the line
         char symbol = line.charAt(0);
 
+        //array of next states
         String[] nextStates = line.substring(2).split(",");
+        //next states
         int n1 = Integer.parseInt(nextStates[0]);
         int n2 = Integer.parseInt(nextStates[1]);
 
         // Create state and add to list of states
         State newState = new State(symbol, n1, n2);
         states.add(newState);
-
+        //read another line
         line = reader.readLine();
       }
-
+      
+      //close reader
       reader.close();
     }
     catch (IOException e) {
@@ -53,6 +63,7 @@ public class REsearch {
     }
 
     try {
+      
       // Open the file containing the strings to search
       FileReader fr = new FileReader(filename);
       BufferedReader lineReader = new BufferedReader(fr);
@@ -69,12 +80,12 @@ public class REsearch {
 
           // Search the current line
           success = search(currentLine);
-
+          
           if (success == true) {
             System.out.println(line);
             break;
           }
-
+          //increment mark
           mark++;
         }
 
@@ -82,18 +93,25 @@ public class REsearch {
         line = lineReader.readLine();
         mark = 0;
       }
-
+      //close reader
       lineReader.close();
     }
+      //handle file not found exceptions
     catch (FileNotFoundException e) {
       System.err.println("Error: " + filename + " not found.");
     }
+    //handle IO exceptions
     catch (IOException e) {
       System.err.println(e);
     }
   }
 
-  public static Boolean search(String string) {
+  /**
+  *
+  *@param string Phrase to search for
+  */
+  public static Boolean search(String string) { 
+    
     // Create new deque
     currentStatePos = 0;
     deque = new Deque(states.size());
@@ -116,11 +134,11 @@ public class REsearch {
         // set the current pointer
         currentChar = chars[pointer];
       }
-
+      
       while (true) {
         if (currentState.getType() == Symbols.BRANCH) {
           deque.push(currentState.next1, currentState.next2);
-
+          
           if (deque.emptyStack()) {
             if (isEmpty()) {
               return false;
@@ -130,7 +148,6 @@ public class REsearch {
             if (currentState.next1 == 0) {
               return true;
             }
-
             break;
           }
 
