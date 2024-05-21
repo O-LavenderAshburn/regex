@@ -1,6 +1,6 @@
 # Regular Expression Compiler
 
-*IMPORTANT. if you are here to plagirse my UoW COMPX-301 assigment,<br>
+*IMPORTANT. if you are here to plagiarize my UoW COMPX-301 assigment,<br>
 id encourage you to use this as a resource to learn and not just to steal*<br>
 <br>
 <br>
