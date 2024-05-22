@@ -1,6 +1,6 @@
 # Regular Expression Compiler
 
-*IMPORTANT! if you are here to plagiarize my University of Waikato COMPX-301 Analysis of Algorithms Regex Assigment,<br>
+*IMPORTANT! if you are here to plagiarize my Regex Assigment,<br>
 id encourage you to use this as a resource to learn and not just to steal. <br> The fact of the matter is, if you are cheating,you are only cheating yourself* <br>- Message supported by myself and contribtor Luke Finlayson<br>
 The tutor is also making sure you won't be cheating XD<br> <br>
 An implementation of a regular expression parser, compiler and matcher. Consists of two main programs, `REcompile` and `REsearch` that
